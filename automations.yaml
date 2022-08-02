@@ -1,0 +1,385 @@
+- id: '1651056821199'
+  alias: Light_off_with_TV
+  description: ''
+  trigger:
+  - platform: device
+    device_id: ee2623d6bea81c9f990864db6d8b3091
+    domain: media_player
+    entity_id: media_player.sony_bravia_tv
+    type: turned_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 21c9244a3182e531578f908add58b776
+    entity_id: light.floor_lamp
+    domain: light
+  - service: climate.turn_off
+    data: {}
+    target:
+      device_id: 5dab31432c45076490b784d6f7a54db4
+  - type: turn_off
+    device_id: 3ca9f7ea7ad724f70ee7ffd5c69a06c4
+    entity_id: light.controller_dimmable_6ee07c
+    domain: light
+  - type: turn_off
+    device_id: 05b34744038f9ed59f460c3f805c0096
+    entity_id: switch.athom_smart_plug_v2_3
+    domain: switch
+  mode: single
+- id: '1651056965969'
+  alias: Light_on_with_TV
+  description: ''
+  trigger:
+  - platform: device
+    device_id: cff4e242de71d98c36fdb26a679635b3
+    domain: media_player
+    entity_id: media_player.living_room_tv
+    type: turned_on
+  - platform: device
+    type: turned_on
+    device_id: ee2623d6bea81c9f990864db6d8b3091
+    entity_id: remote.sony_bravia_tv
+    domain: remote
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 21c9244a3182e531578f908add58b776
+    entity_id: light.floor_lamp
+    domain: light
+    brightness_pct: 50
+  - type: turn_on
+    device_id: 3ca9f7ea7ad724f70ee7ffd5c69a06c4
+    entity_id: light.controller_dimmable_6ee07c
+    domain: light
+    brightness_pct: 5
+  mode: single
+- id: '1651279585740'
+  alias: Morning ritual
+  description: Fade bedside light on, A/C on to heat, living room lights on, tv on,
+    kettle on
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.sm_g981b_next_alarm
+    attribute: Local Time
+  condition:
+  - condition: state
+    entity_id: person.tim
+    state: home
+  - condition: time
+    before: 09:00:00
+    after: 06:00:00
+  - condition: device
+    device_id: 5dab31432c45076490b784d6f7a54db4
+    domain: climate
+    entity_id: climate.fujitsu_livingroom
+    type: is_hvac_mode
+    hvac_mode: 'off'
+  action:
+  - device_id: 5dab31432c45076490b784d6f7a54db4
+    domain: climate
+    entity_id: climate.fujitsu_livingroom
+    type: set_hvac_mode
+    hvac_mode: heat
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      brightness: 1
+      transition: 2
+    target:
+      entity_id:
+      - light.timbedsidelight
+  - service: light.turn_on
+    data:
+      transition: 180
+      brightness_pct: 50
+    target:
+      entity_id:
+      - light.timbedsidelight
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+    enabled: true
+  - service: scene.turn_on
+    target:
+      entity_id: scene.tv_lighting_bright
+    metadata: {}
+  - type: turn_on
+    device_id: ee2623d6bea81c9f990864db6d8b3091
+    entity_id: remote.sony_bravia_tv
+    domain: remote
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.1
+    target:
+      entity_id: media_player.livingroombravia
+    enabled: false
+  - service: media_player.select_source
+    data:
+      source: ABC NEWS
+    target:
+      entity_id: media_player.livingroombravia
+  - type: turn_on
+    device_id: 9670cfb18836d508c848e26170882ca0
+    entity_id: switch.athom_smart_plug_v2
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 20
+      seconds: 0
+      milliseconds: 0
+  - type: turn_off
+    device_id: 9670cfb18836d508c848e26170882ca0
+    entity_id: switch.athom_smart_plug_v2
+    domain: switch
+  mode: single
+- id: '1651295812196'
+  alias: Cast video to Chromecast
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 63965894f82412eab499ce045d975e24
+    entity_id: binary_sensor.front_door_motion
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: media_player.select_source
+    data:
+      source: chromecast
+    target:
+      entity_id: media_player.livingroombravia
+  - service: camera.play_stream
+    data:
+      media_player: media_player.livingroombravia
+    target:
+      entity_id: camera.192_168_0_55
+  mode: single
+- id: '1656804617867'
+  alias: Shopping
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.tim
+    zone: zone.supermarket
+    event: enter
+  condition: []
+  action:
+  - service: notify.mobile_app_tim_s20
+    data:
+      message: Open shopping list?
+      data:
+        clickAction: /lovelace-phone/shopping
+        url: /lovelace-phone/shopping
+  mode: single
+- id: '1657347072397'
+  alias: Frigate Notification (0.10.0)
+  description: ''
+  use_blueprint:
+    path: hunterjm/frigate_0.10_notification.yaml
+    input:
+      camera: Carport
+      notify_device: de0ac6fb92b50acc6ee16333cdf4c9f0
+      update_thumbnail: false
+      critical: false
+      cooldown: 300
+- id: '1657958382146'
+  alias: TV notification carport camera
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 8996dcbd56532c10ff6471bdefdbdc49
+    entity_id: binary_sensor.carport_person_motion
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: camera.snapshot
+    data:
+      filename: /config/www/carport.png
+    target:
+      entity_id: camera.carport
+  - service: notify.android_tv_notification
+    data:
+      title: ' '
+      message: Movement in carport
+      data:
+        duration: 5
+        fontsize: large
+        color: grey
+        position: top-right
+        image:
+          path: /config/www/carport.png
+  mode: single
+- id: '1658030651655'
+  alias: Bedside Light Dim Control
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7fe49afed3dcf831f98f95cb3a9eee3f
+    type: action
+    subtype: single
+    discovery_id: 0x00158d0007edb8a9 action_single
+    id: on_press
+    enabled: true
+  - platform: device
+    domain: mqtt
+    device_id: 7fe49afed3dcf831f98f95cb3a9eee3f
+    type: action
+    subtype: release
+    discovery_id: 0x00158d0007edb8a9 action_release
+    id: on_release
+  - platform: device
+    domain: mqtt
+    device_id: 7fe49afed3dcf831f98f95cb3a9eee3f
+    type: action
+    subtype: hold
+    discovery_id: 0x00158d0007edb8a9 action_hold
+    id: on_hold
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: on_press
+      sequence:
+      - service: light.toggle
+        data:
+          brightness: 70
+          transition: 1
+        target:
+          entity_id: light.timbedsidelight
+    - conditions:
+      - condition: trigger
+        id: on_hold
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.bedsidelightdimstatus
+      - if:
+        - condition: state
+          entity_id: input_boolean.dimswitchstate
+          state: 'on'
+        then:
+        - repeat:
+            while:
+            - condition: state
+              entity_id: input_boolean.bedsidelightdimstatus
+              state: 'on'
+            sequence:
+            - service: light.turn_on
+              data:
+                brightness_step: 3
+              target:
+                entity_id: light.timbedsidelight
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 70
+        else:
+        - repeat:
+            while:
+            - condition: state
+              entity_id: input_boolean.bedsidelightdimstatus
+              state: 'on'
+            sequence:
+            - service: light.turn_on
+              data:
+                brightness_step: -3
+              target:
+                entity_id: light.timbedsidelight
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 70
+    - conditions: []
+      sequence:
+      - choose:
+        - conditions:
+          - condition: trigger
+            id: on_release
+          sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id:
+              - input_boolean.bedsidelightdimstatus
+          - service: input_boolean.toggle
+            data: {}
+            target:
+              entity_id: input_boolean.dimswitchstate
+        default: []
+    default: []
+  mode: parallel
+  max: 3
+- id: '1658471988189'
+  alias: Living Room Lights
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 521de55ccfe5a00c9c8f64737770680c
+    type: action
+    subtype: single
+    discovery_id: 0x00158d0007e0b6c5 action_single
+    id: SinglePress
+  - platform: device
+    domain: mqtt
+    device_id: 521de55ccfe5a00c9c8f64737770680c
+    type: action
+    subtype: double
+    discovery_id: 0x00158d0007e0b6c5 action_double
+    id: DoublePress
+  - platform: device
+    domain: mqtt
+    device_id: 521de55ccfe5a00c9c8f64737770680c
+    type: action
+    subtype: hold
+    discovery_id: 0x00158d0007e0b6c5 action_hold
+    id: Hold
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: DoublePress
+      sequence:
+      - service: light.toggle
+        data:
+          brightness: 100
+        target:
+          entity_id: light.floor_lamp
+    - conditions:
+      - condition: trigger
+        id: SinglePress
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.tv_lighting_bright
+        metadata: {}
+    - conditions:
+      - condition: trigger
+        id: Hold
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.tv_lighting
+        metadata: {}
+    default: []
+  mode: single
